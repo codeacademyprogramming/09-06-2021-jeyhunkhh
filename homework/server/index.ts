@@ -1,8 +1,6 @@
 import cors from "cors";
 import expres from "express";
 import mongoose from "mongoose";
-import { PlaylistsRouter } from "./routes/playlist";
-import { SongsRouter } from "./routes/song";
 import dotenv from "dotenv";
 import { ROUTES } from "./routes";
 

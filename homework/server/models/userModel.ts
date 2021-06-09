@@ -35,4 +35,19 @@ userSchema.pre("save", async function (this: any, next) {
 
 const User = mongoose.model("User", userSchema);
 
+export async function login(email: string, password: string) {
+  const user = User.findOne({ email });
+
+  if (!user) {
+    throw new Error("User not exists");
+  } else {
+    const isValid = await bcrypt.compareSync(password, user.password);
+    if (isValid) {
+      return user;
+    } else {
+      throw new Error("Provided credentials are not valid");
+    }
+  }
+}
+
 export default User;

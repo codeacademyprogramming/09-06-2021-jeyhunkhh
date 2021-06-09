@@ -13,7 +13,7 @@ export interface ISong {
   mediaUrl: string;
 }
 
-export interface IRegisterPayload {
+export interface IAuthPayload {
   email: string;
   password: string;
 }

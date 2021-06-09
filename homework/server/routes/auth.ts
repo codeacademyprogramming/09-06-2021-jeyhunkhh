@@ -1,18 +1,24 @@
 import express from "express";
 import * as yup from "yup";
-import { IRegisterPayload } from "../interface";
-import User from "../models/userModel";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+import { IAuthPayload } from "../interface";
+import User, { login } from "../models/userModel";
 
 export const AuthRouter = express.Router();
+
+dotenv.config();
 
 let authPayloadSchema = yup.object().shape({
   email: yup.string().email().required(),
   password: yup.string().required(),
-  fullname: yup.string().required(),
+  fullname: yup.string(),
 });
 
+const JWT_SECRET = process.env.JWT_SECRET_KEY || "";
+
 AuthRouter.post("/register", async (req, res) => {
-  const registerPayload: IRegisterPayload = req.body;
+  const registerPayload: IAuthPayload = req.body;
   try {
     const validPayload = await authPayloadSchema.validate(registerPayload);
 
@@ -29,8 +35,25 @@ AuthRouter.post("/register", async (req, res) => {
   }
 });
 
-AuthRouter.post("/login", (req, res) =>
-  res.json({
-    token: "verysupertoken",
-  })
-);
+AuthRouter.post("/login", async (req, res) => {
+  const loginPayload: IAuthPayload = req.body;
+  try {
+    const validPayload = await authPayloadSchema.validate(loginPayload);
+
+    try {
+      const user = await User.findOne({ email: validPayload.email });
+      const token = jwt.sign(
+        { _id: user._id, fullname: user.fullname },
+        JWT_SECRET,
+        {
+          expiresIn: "1h",
+        }
+      );
+      res.json({ token });
+    } catch (err) {
+      res.status(422).json({ errors: err.message });
+    }
+  } catch (err) {
+    res.status(422).json({ errors: err.errors });
+  }
+});
