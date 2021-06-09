@@ -3,12 +3,16 @@ import expres from "express";
 import mongoose from "mongoose";
 import { PlaylistsRouter } from "./routes/playlist";
 import { SongsRouter } from "./routes/song";
+import dotenv from "dotenv";
+import { ROUTES } from "./routes";
 
-const uri =
-  "mongodb+srv://Proshop:123698741@cluster0.mevuu.mongodb.net/music?retryWrites=true&w=majority";
+dotenv.config();
+
+const uri = process.env.MONGO_URI || "";
 mongoose.connect(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  useCreateIndex: true,
 });
 
 const db = mongoose.connection;
@@ -19,10 +23,11 @@ const app = expres();
 app.use(cors());
 app.use(expres.json());
 
-app.use("/playlists", PlaylistsRouter);
-app.use("/songs", SongsRouter);
-
 const port = 8000;
+
+ROUTES.forEach(({ path, router }) => {
+  app.use(path, router);
+});
 
 app.listen(port, () => {
   console.log(`server started`);

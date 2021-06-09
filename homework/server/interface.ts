@@ -12,3 +12,8 @@ export interface ISong {
   artist: string;
   mediaUrl: string;
 }
+
+export interface IRegisterPayload {
+  email: string;
+  password: string;
+}
